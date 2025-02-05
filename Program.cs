@@ -4,9 +4,13 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StudentManagementSystem.Data;
 using StudentManagementSystem.Repositories;
+using StudentManagementSystem.Services;  
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+builder.Configuration.AddEnvironmentVariables();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (string.IsNullOrEmpty(connectionString))
@@ -18,6 +22,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<AuthService>(); 
+
 
 var jwtKey = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrEmpty(jwtKey))
@@ -50,7 +56,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddHttpsRedirection(options =>
 {
-    options.HttpsPort = 5197;  
+    options.HttpsPort = 5197;
 });
 
 builder.Services.AddControllers();
@@ -101,14 +107,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.UseCors("AllowAllOrigins");
-
 app.MapControllers();
-
 app.Run();

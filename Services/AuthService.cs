@@ -1,41 +1,43 @@
+using Microsoft.IdentityModel.Tokens;
+using StudentManagementSystem.DTOs;
+using StudentManagementSystem.Models;
+using StudentManagementSystem.Repositories;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using StudentManagementSystem.Models;
 
 namespace StudentManagementSystem.Services
 {
     public class AuthService
     {
+        private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
 
-        public AuthService(IConfiguration configuration)
+        public AuthService(IUserRepository userRepository, IConfiguration configuration)
         {
+            _userRepository = userRepository;
             _configuration = configuration;
         }
 
-        public string GenerateJwtToken(User user)
+        public async Task<string> AuthenticateAsync(LoginRequest request)
         {
-            var claims = new[]
+            var user = await _userRepository.GetUserByEmailAsync(request.Email);
+            if (user == null || user.PasswordHash != request.Password) return null;
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+            var tokenDescriptor = new SecurityTokenDescriptor
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role)
+                Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, user.Email) }),
+                Expires = DateTime.UtcNow.AddHours(1),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(
-                _configuration["Jwt:Issuer"],
-                _configuration["Jwt:Audience"],
-                claims,
-                expires: DateTime.UtcNow.AddHours(3),
-                signingCredentials: creds
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
     }
 }

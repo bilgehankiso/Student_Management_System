@@ -156,6 +156,7 @@
 /Users/bilgehan/StudentManagementSystem/obj/Debug/net9.0/StudentManagementSystem.csproj.CoreCompileInputs.cache
 /Users/bilgehan/StudentManagementSystem/obj/Debug/net9.0/StudentManagementSystem.MvcApplicationPartsAssemblyInfo.cs
 /Users/bilgehan/StudentManagementSystem/obj/Debug/net9.0/StudentManagementSystem.MvcApplicationPartsAssemblyInfo.cache
+/Users/bilgehan/StudentManagementSystem/obj/Debug/net9.0/StudentManagementSystem.sourcelink.json
 /Users/bilgehan/StudentManagementSystem/obj/Debug/net9.0/scopedcss/bundle/StudentManagementSystem.styles.css
 /Users/bilgehan/StudentManagementSystem/obj/Debug/net9.0/staticwebassets.build.json
 /Users/bilgehan/StudentManagementSystem/obj/Debug/net9.0/staticwebassets.development.json

@@ -1,6 +1,12 @@
+using Microsoft.AspNetCore.Mvc;
+using StudentManagementSystem.Repositories;
+using StudentManagementSystem.Services;
+using StudentManagementSystem.Models;
+using StudentManagementSystem.DTOs;
+
 namespace StudentManagementSystem.Controllers
 {
-    [Route("api/auth")]
+    [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {
@@ -21,20 +27,21 @@ namespace StudentManagementSystem.Controllers
                 return BadRequest(new { message = "Invalid user data" });
             }
 
-            await _userRepository.AddUser(user);
+            var result = await _userRepository.RegisterUserAsync(user);
+            if (!result.Success) return BadRequest(result.Message);
+
             return Ok(new { message = "User registered successfully" });
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
         {
-            var user = await _authService.Authenticate(loginRequest.Username, loginRequest.Password);
-            if (user == null)
+            var token = await _authService.AuthenticateAsync(loginRequest);
+            if (token == null)
             {
                 return Unauthorized(new { message = "Invalid credentials" });
             }
 
-            var token = _authService.GenerateJwtToken(user);
             return Ok(new { token });
         }
     }
