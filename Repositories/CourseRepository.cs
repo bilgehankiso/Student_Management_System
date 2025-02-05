@@ -12,10 +12,10 @@ public class CourseRepository
         _context = context;
     }
 
-    // Method to add a new course
     public async Task AddCourseAsync(Course course)
     {
         await _context.Courses.AddAsync(course);
         await _context.SaveChangesAsync();
     }
+    
 }

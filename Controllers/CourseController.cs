@@ -12,7 +12,6 @@ namespace StudentManagementSystem.Controllers
     {
         private readonly CourseRepository _courseRepository;
 
-        // Constructor to inject CourseRepository
         public CourseController(CourseRepository courseRepository)
         {
             _courseRepository = courseRepository;
@@ -28,9 +27,11 @@ namespace StudentManagementSystem.Controllers
                 return BadRequest("Invalid course data.");
             }
 
-            // Call the repository method to add the course
             await _courseRepository.AddCourseAsync(course);
             return Ok("Course added successfully.");
         }
+
+
+
     }
 }

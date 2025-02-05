@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": ".NET Core Launch (web)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",  // Derleme işlemi öncesi yapılacak görev
+            "program": "${workspaceFolder}/bin/Debug/net9.0/StudentManagementSystem.dll",  // Proje adı ve hedef framework
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"  // Geliştirme ortamında çalıştırılacak
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"  // Views klasörü haritalaması
+            }
+        }
+    ]
+}
