@@ -30,8 +30,20 @@ namespace StudentManagementSystem.Controllers
             await _courseRepository.AddCourseAsync(course);
             return Ok("Course added successfully.");
         }
+        
+        [HttpDelete("delete/{id}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> DeleteCourse(int id)
+        {
+            var course = await _courseRepository.GetCourseByIdAsync(id);
+            if (course == null)
+            {
+                return NotFound(new { message = "Course not found" });
+            }
 
-
+            await _courseRepository.DeleteCourseAsync(id);
+            return Ok(new { message = "Course deleted successfully" });
+        }
 
     }
 }

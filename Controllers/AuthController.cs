@@ -21,31 +21,32 @@ namespace StudentManagementSystem.Controllers
             _authService = authService;
         }
         
-        [HttpPost("register")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Register([FromBody] User user)
-        {
-            if (user == null)
-            {
-                return BadRequest(new { message = "Invalid user data" });
-            }
+        // [HttpPost("register")]
+        // [AllowAnonymous]
+        // public async Task<IActionResult> Register([FromBody] User user)
+        // {
+        //     if (user == null)
+        //     {
+        //         return BadRequest(new { message = "Invalid user data" });
+        //     }
 
-            var result = await _userRepository.RegisterUserAsync(user);
-            if (!result.Success) return BadRequest(result.Message);
+        //     var result = await _userRepository.RegisterUserAsync(user);
+        //     if (!result.Success) return BadRequest(result.Message);
 
-            return Ok(new { message = "User registered successfully" });
-        }
+        //     return Ok(new { message = "User registered successfully" });
+        // }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
-        {
-            var token = await _authService.AuthenticateAsync(loginRequest);
-            if (token == null)
-            {
-                return Unauthorized(new { message = "Invalid credentials" });
-            }
+        // [HttpPost("login")]
+        // public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
+        // {
+        //     var token = await _authService.AuthenticateAsync(loginRequest);
+        //     if (token == null)
+        //     {
+        //         return Unauthorized(new { message = "Invalid credentials" });
+        //     }
 
-            return Ok(new { token });
-        }
+        //     return Ok(new { token });
+        // }
+   
     }
 }

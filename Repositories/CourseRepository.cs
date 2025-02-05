@@ -17,5 +17,18 @@ public class CourseRepository
         await _context.Courses.AddAsync(course);
         await _context.SaveChangesAsync();
     }
-    
+    public async Task DeleteCourseAsync(int id)
+    {
+        var course = await _context.Courses.FindAsync(id);
+        if (course != null)
+        {
+            _context.Courses.Remove(course);
+            await _context.SaveChangesAsync();
+        }
+    }
+    public async Task<Course?> GetCourseByIdAsync(int id)
+    {
+        return await _context.Courses.FirstOrDefaultAsync(c => c.Id == id);
+    }
+
 }
