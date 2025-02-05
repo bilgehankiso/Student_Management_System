@@ -3,6 +3,8 @@ using StudentManagementSystem.Repositories;
 using StudentManagementSystem.Services;
 using StudentManagementSystem.Models;
 using StudentManagementSystem.DTOs;
+using Microsoft.AspNetCore.Authorization;  // For AllowAnonymous
+
 
 namespace StudentManagementSystem.Controllers
 {
@@ -18,8 +20,9 @@ namespace StudentManagementSystem.Controllers
             _userRepository = userRepository;
             _authService = authService;
         }
-
+        
         [HttpPost("register")]
+        [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] User user)
         {
             if (user == null)

@@ -4,7 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StudentManagementSystem.Data;
 using StudentManagementSystem.Repositories;
-using StudentManagementSystem.Services;  
+using StudentManagementSystem.Services;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,8 +22,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<AuthService>(); 
-
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<CourseRepository>();  
 
 var jwtKey = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrEmpty(jwtKey))
@@ -48,10 +48,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+// Add CORS policy with specific origins (replace with your frontend's URL)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins",
-        policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+        policy => policy.AllowAnyOrigin()  // Allow any origin
+                        .AllowAnyMethod()  // Allow any HTTP method (GET, POST, etc.)
+                        .AllowAnyHeader()); // Allow any header
 });
 
 builder.Services.AddHttpsRedirection(options =>
@@ -106,10 +109,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "StudentManagementSystem API v1"));
 }
 
+// Middleware Pipeline Configuration
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors("AllowAllOrigins");
+
+// Apply CORS middleware to allow cross-origin requests
+app.UseCors("AllowAllOrigins");  // This ensures that your CORS policy is being applied.
+
 app.MapControllers();
 app.Run();

@@ -9,7 +9,7 @@ namespace StudentManagementSystem.Models
         [Required]
         public string Name { get; set; }
         public int TeacherId { get; set; }
-        [ForeignKey("TeacherId")]
-        public User Teacher { get; set; }
+//        [ForeignKey("TeacherId")]
+//        public User Teacher { get; set; }
     }
 }
