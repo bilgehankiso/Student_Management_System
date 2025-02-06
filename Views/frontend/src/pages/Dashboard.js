@@ -1,14 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom"; 
 
 const Dashboard = () => {
     const navigate = useNavigate();
-    const location = useLocation();
-    const user = location.state?.user;
+    const location = useLocation(); 
+    const user = location.state?.user; 
+
+    useEffect(() => {
+        if (!user) {
+            navigate("/login"); 
+        }
+    }, [user, navigate]);
 
     const handleLogout = () => {
-        navigate("/login");
+        navigate("/login"); 
     };
 
     return (
@@ -23,7 +29,7 @@ const Dashboard = () => {
                             <p><strong>User ID:</strong> {user.id}</p>
                         </>
                     ) : (
-                        <h2>Welcome to the Dashboard!</h2>
+                        <h2>Redirecting...</h2> 
                     )}
                     <Button variant="danger" className="mt-3" onClick={handleLogout}>
                         Logout

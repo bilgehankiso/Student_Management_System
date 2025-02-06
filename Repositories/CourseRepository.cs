@@ -64,13 +64,13 @@ public class CourseRepository
 
         if (studentCourse == null)
         {
-            return false; 
+            return false;
         }
 
         _context.StudentCourses.Remove(studentCourse);
         await _context.SaveChangesAsync();
 
-        return true; 
+        return true;
     }
     public async Task<List<Course>> GetCoursesByTeacherAsync(int teacherId)
     {
@@ -78,4 +78,22 @@ public class CourseRepository
                              .Where(c => c.TeacherId == teacherId)
                              .ToListAsync();
     }
+public async Task<List<CourseWithTeacher>> GetAllCoursesWithTeacherAsync()
+{
+    var coursesWithTeachers = await _context.Courses
+        .Join(_context.Users,
+              course => course.TeacherId,
+              user => user.Id,
+              (course, user) => new CourseWithTeacher
+              {
+                  Id = course.Id,
+                  Name = course.Name,
+                  TeacherId = course.TeacherId,
+                  TeacherName = user.Name  // User tablosundan öğretmen ismi alınıyor
+              })
+        .ToListAsync();
+
+    return coursesWithTeachers;
+}
+
 }

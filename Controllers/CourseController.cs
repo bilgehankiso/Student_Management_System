@@ -96,6 +96,18 @@ namespace StudentManagementSystem.Controllers
             return Ok(courses);
         }
 
+        [HttpGet("all")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAllCourses()
+        {
+            var coursesWithTeachers = await _courseRepository.GetAllCoursesWithTeacherAsync();
+            if (coursesWithTeachers == null || !coursesWithTeachers.Any())
+            {
+                return NotFound(new { message = "No courses found." });
+            }
+
+            return Ok(coursesWithTeachers);
+        }
 
     }
 }

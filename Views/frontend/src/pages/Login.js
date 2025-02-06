@@ -44,6 +44,10 @@ const Login = () => {
         }
     };
 
+    const handleRegisterRedirect = () => {
+        navigate("/register");
+    };
+
     return (
         <Container className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
             <Row>
@@ -75,6 +79,10 @@ const Login = () => {
                             Login
                         </Button>
                     </Form>
+
+                    <div className="mt-3 text-center">
+                        <p>Don't have an account? <Button variant="link" onClick={handleRegisterRedirect}>Register</Button></p>
+                    </div>
                 </Col>
             </Row>
         </Container>
