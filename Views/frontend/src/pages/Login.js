@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
 import { Form, Button, Container, Row, Col, Alert } from "react-bootstrap";
+import axios from "axios"; 
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -8,17 +9,38 @@ const Login = () => {
     const [message, setMessage] = useState("");
     const navigate = useNavigate(); 
 
-
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (email === "test@example.com" && password === "password123") {
-            setMessage({ type: "success", text: "Login successful!" });
-            setTimeout(() => {
-                navigate("/dashboard"); 
-              }, 2000);
-        } else {
-            setMessage({ type: "danger", text: "Invalid email or password." });
+        try {
+            const response = await axios.post(
+                "https://localhost:7025/api/User/login",
+                {
+                    email: email,
+                    password: password,
+                },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        accept: "*/*",
+                    },
+                }
+            );
+
+            console.log(response.data); 
+
+            if (response.data.success) {
+                setMessage({ type: "success", text: "Login successful!" });
+                setTimeout(() => {
+                    const userData = response.data.user;
+                    navigate("/dashboard", { state: { user: userData } });
+                }, 1000);
+            } else {
+                setMessage({ type: "danger", text: "Invalid email or password." });
+            }
+        } catch (error) {
+            console.log(error); 
+            setMessage({ type: "danger", text: "An error occurred." });
         }
     };
 

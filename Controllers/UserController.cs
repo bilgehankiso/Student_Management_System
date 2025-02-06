@@ -69,6 +69,7 @@ namespace StudentManagementSystem.Controllers
             return Ok(new
             {
                 message = "Login successful",
+                success = true,
                 user = new
                 {
                     user.Id,
