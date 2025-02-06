@@ -7,8 +7,12 @@ const Course = () => {
     const [teachers, setTeachers] = useState([]);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showStudentModal, setShowStudentModal] = useState(false);
     const [newCourse, setNewCourse] = useState({ name: "", teacherId: "" });
     const [editCourse, setEditCourse] = useState({ id: "", name: "", teacherId: "" });
+    const [courseForStudents, setCourseForStudents] = useState(null);
+    const [studentsInCourse, setStudentsInCourse] = useState([]);
+    const [allStudents, setAllStudents] = useState([]);
 
     useEffect(() => {
         fetchCourses();
@@ -28,7 +32,8 @@ const Course = () => {
 
     const fetchTeachers = async () => {
         try {
-            const response = await axios.get("https://localhost:7025/api/User/teachers", {
+            const response = await axios.get("https://localhost:7025/api/User/getAllUsersByRole", {
+                params: { role: "Teacher" }, 
                 headers: { accept: "*/*" },
             });
             setTeachers(response.data);
@@ -36,6 +41,7 @@ const Course = () => {
             console.error("Error fetching teachers:", error);
         }
     };
+    
 
     const handleAddCourse = async () => {
         try {
@@ -69,10 +75,48 @@ const Course = () => {
         }
     };
 
-
     const openEditModal = (course) => {
         setEditCourse({ id: course.id, name: course.name, teacherId: course.teacherId });
         setShowEditModal(true);
+    };
+
+    const addDeleteStudent = async (course) => {
+        setCourseForStudents(course);
+        try {
+            const response = await axios.get(`https://localhost:7025/api/Student/course/${course.id}`);
+            setStudentsInCourse(response.data);
+            const allResponse = await axios.get("https://localhost:7025/api/Student/all");
+            setAllStudents(allResponse.data);
+        } catch (error) {
+            console.error("Error fetching students:", error);
+        }
+        setShowStudentModal(true);
+    };
+
+    const handleAddStudent = async (studentId) => {
+        try {
+            await axios.post(`https://localhost:7025/api/Student/addToCourse`, {
+                studentId: studentId,
+                courseId: courseForStudents.id
+            });
+            const response = await axios.get(`https://localhost:7025/api/Student/course/${courseForStudents.id}`);
+            setStudentsInCourse(response.data);
+        } catch (error) {
+            console.error("Error adding student:", error);
+        }
+    };
+
+    const handleRemoveStudent = async (studentId) => {
+        try {
+            await axios.post(`https://localhost:7025/api/Student/removeFromCourse`, {
+                studentId: studentId,
+                courseId: courseForStudents.id
+            });
+            const response = await axios.get(`https://localhost:7025/api/Student/course/${courseForStudents.id}`);
+            setStudentsInCourse(response.data);
+        } catch (error) {
+            console.error("Error removing student:", error);
+        }
     };
 
     return (
@@ -98,8 +142,11 @@ const Course = () => {
                                 <td>{course.name}</td>
                                 <td>{course.teacherName}</td>
                                 <td>
-                                    <Button variant="warning" size="sm" onClick={() => openEditModal(course)}>
-                                        Edit
+                                    <Button variant="warning" size="sm" onClick={() => openEditModal(course)} className="me-2">
+                                        Edit Course
+                                    </Button>
+                                    <Button variant="info" size="sm" onClick={() => addDeleteStudent(course)} className="ms-2">
+                                        Add/Delete Student
                                     </Button>
                                 </td>
                             </tr>
@@ -189,6 +236,55 @@ const Course = () => {
                         </Button>
                         <Button variant="primary" onClick={handleEditCourse}>
                             Update Course
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+
+                {/* Add/Delete Student Modal */}
+                <Modal show={showStudentModal} onHide={() => setShowStudentModal(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Manage Students for {courseForStudents?.name}</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h5>Students Enrolled</h5>
+                        <ul>
+                            {studentsInCourse.map((student) => (
+                                <li key={student.id}>
+                                    {student.name}
+                                    <Button
+                                        variant="danger"
+                                        size="sm"
+                                        onClick={() => handleRemoveStudent(student.id)}
+                                        className="ms-2"
+                                    >
+                                        Remove
+                                    </Button>
+                                </li>
+                            ))}
+                        </ul>
+
+                        <h5 className="mt-4">Add Students</h5>
+                        <ul>
+                            {allStudents
+                                .filter(student => !studentsInCourse.some(s => s.id === student.id))
+                                .map((student) => (
+                                    <li key={student.id}>
+                                        {student.name}
+                                        <Button
+                                            variant="success"
+                                            size="sm"
+                                            onClick={() => handleAddStudent(student.id)}
+                                            className="ms-2"
+                                        >
+                                            Add
+                                        </Button>
+                                    </li>
+                                ))}
+                        </ul>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowStudentModal(false)}>
+                            Close
                         </Button>
                     </Modal.Footer>
                 </Modal>

@@ -68,17 +68,17 @@ namespace StudentManagementSystem.Controllers
             });
         }
 
-        [HttpGet("teachers")]
-        public async Task<IActionResult> GetTeachers()
+        [HttpGet("getAllUsersByRole")]
+        public async Task<IActionResult> GetAllUsersByRole(string role)
         {
-            var teachers = await _userRepository.GetUsersByRoleAsync("Teacher");
+            var teachers = await _userRepository.GetUsersByRoleAsync(role);
 
             if (teachers == null || !teachers.Any())
             {
-                return NotFound("No teachers found.");
+                return NotFound("No" + role + "found.");
             }
 
-            var teacherList = teachers.Select(t => new TeacherDto
+            var teacherList = teachers.Select(t => new RoleDto
             {
                 Id = t.Id,
                 Name = t.Name,
