@@ -1,25 +1,43 @@
 {
     "version": "0.2.0",
     "configurations": [
-        {
-            "name": ".NET Core Launch (web)",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build",  // Derleme işlemi öncesi yapılacak görev
-            "program": "${workspaceFolder}/bin/Debug/net9.0/StudentManagementSystem.dll",  // Proje adı ve hedef framework
-            "args": [],
-            "cwd": "${workspaceFolder}",
-            "stopAtEntry": false,
-            "serverReadyAction": {
-                "action": "openExternally",
-                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
-            },
-            "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"  // Geliştirme ortamında çalıştırılacak
-            },
-            "sourceFileMap": {
-                "/Views": "${workspaceFolder}/Views"  // Views klasörü haritalaması
-            }
+      {
+        "name": "Launch React App",
+        "type": "node",
+        "request": "launch",
+        "program": "${workspaceFolder}/Views/frontend/node_modules/react-scripts/scripts/start.js",  // React app start command
+        "args": [],
+        "cwd": "${workspaceFolder}/Views/frontend",  // React project directory
+        "env": {
+          "BROWSER": "none"  // Don't open the browser automatically
         }
+      },
+      {
+        "name": ".NET Core Launch (web)",
+        "type": "coreclr",
+        "request": "launch",
+        "preLaunchTask": "build .NET app",  // Reference the correct build task
+        "program": "${workspaceFolder}/bin/Debug/net9.0/StudentManagementSystem.dll",  // .NET project path
+        "args": [],
+        "cwd": "${workspaceFolder}",
+        "stopAtEntry": false,
+        "serverReadyAction": {
+          "action": "openExternally",
+          "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+        },
+        "env": {
+          "ASPNETCORE_ENVIRONMENT": "Development"  // Development environment
+        }
+      }
+    ],
+    "compounds": [
+      {
+        "name": "Launch .NET and React",
+        "configurations": [
+          "Launch React App",
+          ".NET Core Launch (web)"
+        ]
+      }
     ]
-}
+  }
+  

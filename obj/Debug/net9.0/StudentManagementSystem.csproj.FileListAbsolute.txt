@@ -179,3 +179,10 @@
 /Users/bilgehan/StudentManagementSystem/obj/Debug/net9.0/StudentManagementSystem.pdb
 /Users/bilgehan/StudentManagementSystem/obj/Debug/net9.0/StudentManagementSystem.genruntimeconfig.cache
 /Users/bilgehan/StudentManagementSystem/obj/Debug/net9.0/ref/StudentManagementSystem.dll
+/Users/bilgehan/StudentManagementSystem/bin/Debug/net9.0/package-lock.json
+/Users/bilgehan/StudentManagementSystem/bin/Debug/net9.0/package.json
+/Users/bilgehan/StudentManagementSystem/bin/Debug/net9.0/Views/frontend/package-lock.json
+/Users/bilgehan/StudentManagementSystem/bin/Debug/net9.0/Views/frontend/package.json
+/Users/bilgehan/StudentManagementSystem/bin/Debug/net9.0/Views/frontend/public/manifest.json
+/Users/bilgehan/StudentManagementSystem/bin/Debug/net9.0/Views/package-lock.json
+/Users/bilgehan/StudentManagementSystem/bin/Debug/net9.0/Views/package.json
