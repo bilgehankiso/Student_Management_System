@@ -1,59 +1,44 @@
 import React, { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";  
-import { Button, Form, Container } from "react-bootstrap";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [message, setMessage] = useState("");
 
-  const navigate = useNavigate();  
-
-  const handleLogin = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    const loginData = { email, password };
-    try {
-      const response = await axios.post("http://localhost:5000/api/user/login", loginData); 
-      console.log(response.data);  
-      navigate("/dashboard");
-    } catch (error) {
-      setErrorMessage("Invalid credentials or something went wrong.");
+    if (email === "test@example.com" && password === "password123") {
+      setMessage("Login successful!");
+    } else {
+      setMessage("Invalid email or password.");
     }
   };
 
   return (
-    <Container>
-      <h2 className="text-center mt-5">Login</h2>
-      <Form onSubmit={handleLogin} className="mt-3">
-        <Form.Group controlId="formEmail">
-          <Form.Label>Email</Form.Label>
-          <Form.Control
+    <div style={{ textAlign: "center", marginTop: "50px" }}>
+      <h2>Login</h2>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <input
             type="email"
-            placeholder="Enter your email"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-        </Form.Group>
-
-        <Form.Group controlId="formPassword" className="mt-3">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
+        </div>
+        <div>
+          <input
             type="password"
-            placeholder="Enter your password"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-        </Form.Group>
-
-        {errorMessage && <div className="text-danger mt-2">{errorMessage}</div>}
-
-        <Button variant="primary" type="submit" className="mt-3">
-          Login
-        </Button>
-      </Form>
-    </Container>
+        </div>
+        <button type="submit">Login</button>
+      </form>
+      {message && <p>{message}</p>}
+    </div>
   );
 };
 
