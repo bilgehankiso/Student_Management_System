@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using StudentManagementSystem.Models;  // For Course
+using StudentManagementSystem.Models;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;  // For AllowAnonymous
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace StudentManagementSystem.Controllers
@@ -17,19 +17,37 @@ namespace StudentManagementSystem.Controllers
             _courseRepository = courseRepository;
         }
 
-        // POST api/course/add
-        [HttpPost("add")]
+        // POST api/course/addorupdate
+        [HttpPost("addorupdate")]
         [AllowAnonymous]
-        public async Task<IActionResult> AddCourse([FromBody] Course course)
+        public async Task<IActionResult> AddOrUpdateCourse([FromBody] Course course)
         {
             if (course == null)
             {
                 return BadRequest("Invalid course data.");
             }
 
-            await _courseRepository.AddCourseAsync(course);
-            return Ok("Course added successfully.");
+            if (course.Id > 0) // ID varsa, Güncelleme işlemi yap
+            {
+                var existingCourse = await _courseRepository.GetCourseByIdAsync(course.Id);
+                if (existingCourse == null)
+                {
+                    return NotFound("Course not found.");
+                }
+
+                existingCourse.Name = course.Name;
+                existingCourse.TeacherId = course.TeacherId;
+
+                await _courseRepository.UpdateCourseAsync(existingCourse);
+                return Ok("Course updated successfully.");
+            }
+            else // ID yoksa, Yeni ekleme işlemi yap
+            {
+                await _courseRepository.AddCourseAsync(course);
+                return Ok("Course added successfully.");
+            }
         }
+
 
         [HttpDelete("delete/{id}")]
         [AllowAnonymous]

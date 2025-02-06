@@ -8,5 +8,7 @@ namespace StudentManagementSystem.Repositories
     {
         Task<ServiceResult<User>> RegisterUserAsync(User user);
         Task<User?> GetUserByEmailAsync(string email);
+        Task<List<User>> GetUsersByRoleAsync(string role); 
+
     }
 }

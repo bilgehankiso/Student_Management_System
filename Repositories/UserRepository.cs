@@ -26,5 +26,9 @@ namespace StudentManagementSystem.Repositories
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
+        public async Task<List<User>> GetUsersByRoleAsync(string role)
+        {
+            return await _context.Users.Where(u => u.Role == role).ToListAsync();
+        }
     }
 }

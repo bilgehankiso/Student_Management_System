@@ -35,18 +35,6 @@ namespace StudentManagementSystem.Controllers
             return Ok(result);
         }
 
-        // [HttpGet("{email}")]
-        // public async Task<IActionResult> GetUserByEmail(string email)
-        // {
-        //     var user = await _userRepository.GetUserByEmailAsync(email);
-        //     if (user == null)
-        //     {
-        //         return NotFound("Kullanıcı bulunamadı.");
-        //     }
-
-        //     return Ok(user);
-        // }
-
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest loginDto)
         {
@@ -80,5 +68,23 @@ namespace StudentManagementSystem.Controllers
             });
         }
 
+        [HttpGet("teachers")]
+        public async Task<IActionResult> GetTeachers()
+        {
+            var teachers = await _userRepository.GetUsersByRoleAsync("Teacher");
+
+            if (teachers == null || !teachers.Any())
+            {
+                return NotFound("No teachers found.");
+            }
+
+            var teacherList = teachers.Select(t => new TeacherDto
+            {
+                Id = t.Id,
+                Name = t.Name,
+                Role = t.Role
+            });
+            return Ok(teacherList);
+        }
     }
 }

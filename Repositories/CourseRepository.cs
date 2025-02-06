@@ -78,22 +78,34 @@ public class CourseRepository
                              .Where(c => c.TeacherId == teacherId)
                              .ToListAsync();
     }
-public async Task<List<CourseWithTeacher>> GetAllCoursesWithTeacherAsync()
-{
-    var coursesWithTeachers = await _context.Courses
-        .Join(_context.Users,
-              course => course.TeacherId,
-              user => user.Id,
-              (course, user) => new CourseWithTeacher
-              {
-                  Id = course.Id,
-                  Name = course.Name,
-                  TeacherId = course.TeacherId,
-                  TeacherName = user.Name  // User tablosundan öğretmen ismi alınıyor
-              })
-        .ToListAsync();
+    public async Task<List<CourseWithTeacher>> GetAllCoursesWithTeacherAsync()
+    {
+        var coursesWithTeachers = await _context.Courses
+            .Join(_context.Users,
+                  course => course.TeacherId,
+                  user => user.Id,
+                  (course, user) => new CourseWithTeacher
+                  {
+                      Id = course.Id,
+                      Name = course.Name,
+                      TeacherId = course.TeacherId,
+                      TeacherName = user.Name  // User tablosundan öğretmen ismi alınıyor
+                  })
+            .ToListAsync();
 
-    return coursesWithTeachers;
-}
+        return coursesWithTeachers;
+    }
+    public async Task UpdateCourseAsync(Course course)
+    {
+        var existingCourse = await _context.Courses.FindAsync(course.Id);
+        if (existingCourse != null)
+        {
+            existingCourse.Name = course.Name;
+            existingCourse.TeacherId = course.TeacherId;
+
+            _context.Courses.Update(existingCourse);
+            await _context.SaveChangesAsync();
+        }
+    }
 
 }
