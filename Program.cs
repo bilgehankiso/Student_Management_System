@@ -25,6 +25,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<CourseRepository>();
+builder.Services.AddScoped<GradeRepository>();
 
 builder.Services.AddCors(options =>
 {

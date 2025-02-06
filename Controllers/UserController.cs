@@ -32,19 +32,52 @@ namespace StudentManagementSystem.Controllers
             }
 
             var result = await _userRepository.RegisterUserAsync(user);
-            return Ok(result); 
+            return Ok(result);
         }
 
-        [HttpGet("{email}")]
-        public async Task<IActionResult> GetUserByEmail(string email)
+        // [HttpGet("{email}")]
+        // public async Task<IActionResult> GetUserByEmail(string email)
+        // {
+        //     var user = await _userRepository.GetUserByEmailAsync(email);
+        //     if (user == null)
+        //     {
+        //         return NotFound("Kullanıcı bulunamadı.");
+        //     }
+
+        //     return Ok(user);
+        // }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest loginDto)
         {
-            var user = await _userRepository.GetUserByEmailAsync(email);
-            if (user == null)
+            if (loginDto == null || string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password))
             {
-                return NotFound("Kullanıcı bulunamadı.");
+                return BadRequest(new { message = "Invalid login data" });
             }
 
-            return Ok(user);
+            var user = await _userRepository.GetUserByEmailAsync(loginDto.Email);
+            if (user == null)
+            {
+                return Unauthorized(new { message = "User not found" });
+            }
+
+            if (user.PasswordHash != loginDto.Password)
+            {
+                return Unauthorized(new { message = "Invalid password" });
+            }
+
+            return Ok(new
+            {
+                message = "Login successful",
+                user = new
+                {
+                    user.Id,
+                    user.Name,
+                    user.Email,
+                    user.Role
+                }
+            });
         }
+
     }
 }

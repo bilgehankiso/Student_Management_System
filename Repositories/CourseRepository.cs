@@ -30,5 +30,52 @@ public class CourseRepository
     {
         return await _context.Courses.FirstOrDefaultAsync(c => c.Id == id);
     }
+    public async Task<bool> JoinCourseAsync(int studentId, int courseId)
+    {
+        var courseExists = await _context.Courses.AnyAsync(c => c.Id == courseId);
+        if (!courseExists)
+        {
+            return false;
+        }
 
+        var alreadyJoined = await _context.StudentCourses
+            .AnyAsync(sc => sc.StudentId == studentId && sc.CourseId == courseId);
+
+        if (alreadyJoined)
+        {
+            return false;
+        }
+
+        var studentCourse = new StudentCourse
+        {
+            StudentId = studentId,
+            CourseId = courseId
+        };
+
+        await _context.StudentCourses.AddAsync(studentCourse);
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+    public async Task<bool> LeaveCourseAsync(int studentId, int courseId)
+    {
+        var studentCourse = await _context.StudentCourses
+            .FirstOrDefaultAsync(sc => sc.StudentId == studentId && sc.CourseId == courseId);
+
+        if (studentCourse == null)
+        {
+            return false; 
+        }
+
+        _context.StudentCourses.Remove(studentCourse);
+        await _context.SaveChangesAsync();
+
+        return true; 
+    }
+    public async Task<List<Course>> GetCoursesByTeacherAsync(int teacherId)
+    {
+        return await _context.Courses
+                             .Where(c => c.TeacherId == teacherId)
+                             .ToListAsync();
+    }
 }
