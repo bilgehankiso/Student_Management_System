@@ -43,5 +43,22 @@ public class GradeRepository
             .Where(g => g.StudentId == studentId)
             .ToListAsync();
     }
+    public async Task<List<Grade>> GetGradesByTeacherIdAsync(int teacherId)
+    {
+        var courseIds = await _context.Courses
+            .Where(c => c.TeacherId == teacherId)
+            .Select(c => c.Id)
+            .ToListAsync();
+
+        if (courseIds.Count == 0)
+        {
+            return new List<Grade>();
+        }
+
+        return await _context.Grades
+            .Where(g => courseIds.Contains(g.CourseId))
+            .ToListAsync();
+    }
+
 
 }

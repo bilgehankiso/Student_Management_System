@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import { Form, Button, Container, Row, Col, Alert } from "react-bootstrap";
-import axios from "axios"; 
+import axios from "axios";
 
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -27,19 +27,23 @@ const Login = () => {
                 }
             );
 
-            console.log(response.data); 
+            console.log(response.data);
 
             if (response.data.success) {
                 setMessage({ type: "success", text: "Login successful!" });
                 setTimeout(() => {
                     const userData = response.data.user;
-                    navigate("/dashboard", { state: { user: userData } });
+                    if (userData.role === "Teacher") {
+                        navigate("/teacher/GradeOperations", { state: { user: userData } });
+                    } else {
+                        navigate("/dashboard", { state: { user: userData } });
+                    }
                 }, 1000);
             } else {
                 setMessage({ type: "danger", text: "Invalid email or password." });
             }
         } catch (error) {
-            console.log(error); 
+            console.log(error);
             setMessage({ type: "danger", text: "An error occurred." });
         }
     };

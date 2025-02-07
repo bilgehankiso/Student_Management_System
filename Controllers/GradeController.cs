@@ -64,5 +64,19 @@ namespace StudentManagementSystem.Controllers
 
             return Ok(grades);
         }
+        // GET api/grade/teacher/{teacherId}
+        [HttpGet("teacher/{teacherId}")]
+        public async Task<IActionResult> GetGradesByTeacher(int teacherId)
+        {
+            var grades = await _gradeRepository.GetGradesByTeacherIdAsync(teacherId);
+
+            if (grades == null || grades.Count == 0)
+            {
+                return NotFound(new { message = "No grades found for this teacher's courses." });
+            }
+
+            return Ok(grades);
+        }
+
     }
 }

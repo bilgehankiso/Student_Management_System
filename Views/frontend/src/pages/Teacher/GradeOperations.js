@@ -3,36 +3,59 @@ import { Container, Table, Button, Modal, Form } from "react-bootstrap";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const GradeOperations = () => {
     const [grades, setGrades] = useState([]);
     const [students, setStudents] = useState([]);
-    const [newGrade, setNewGrade] = useState({ studentId: "", course: "", score: "" });
-    const [editGrade, setEditGrade] = useState({ id: "", studentId: "", course: "", score: "" });
+    const [courses, setCourses] = useState([]); 
+    const [newGrade, setNewGrade] = useState({ studentId: "", courseId: "", midterm: "", final: "" });
+    const [editGrade, setEditGrade] = useState({ id: "", studentId: "", courseId: "", midterm: "", final: "" });
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
 
+    const navigate = useNavigate();
+    const location = useLocation();
+    const user = location.state?.user;
+
     useEffect(() => {
+        if (!user) {
+            navigate("/login");
+        }
         fetchGrades();
         fetchStudents();
+        fetchCourses(); 
     }, []);
 
     const fetchGrades = async () => {
         try {
-            const response = await axios.get("https://localhost:7025/api/Grades/all");
+            const response = await axios.get(`https://localhost:7025/api/Grade/teacher/${user.id}`);
             setGrades(response.data);
         } catch (error) {
             console.error("Error fetching grades:", error);
-            toast.error("Failed to fetch grades ");
+            toast.error("Failed to fetch grades");
         }
     };
 
     const fetchStudents = async () => {
         try {
-            const response = await axios.get("https://localhost:7025/api/Students/all");
+            const response = await axios.get("https://localhost:7025/api/User/getAllUsersByRole", {
+                params: { role: "Student" },
+                headers: { accept: "*/*" },
+            });
             setStudents(response.data);
         } catch (error) {
             console.error("Error fetching students:", error);
+        }
+    };
+
+    const fetchCourses = async () => {
+        try {
+            const response = await axios.get(`https://localhost:7025/api/Course/teacher/${user.id}`);
+            setCourses(response.data); 
+        } catch (error) {
+            console.error("Error fetching courses:", error);
+            toast.error("Failed to fetch courses");
         }
     };
 
@@ -42,43 +65,13 @@ const GradeOperations = () => {
                 headers: { "Content-Type": "application/json" },
             });
             setShowAddModal(false);
-            setNewGrade({ studentId: "", course: "", score: "" });
+            setNewGrade({ studentId: "", courseId: "", midterm: "", final: "" });
             fetchGrades();
-            toast.success("Grade added successfully! ");
+            toast.success("Grade added successfully!");
         } catch (error) {
             console.error("Error adding grade:", error);
-            toast.error("Failed to add grade ");
+            toast.error("Failed to add grade");
         }
-    };
-
-    const handleEditGrade = async () => {
-        try {
-            await axios.put("https://localhost:7025/api/Grades/update", editGrade, {
-                headers: { "Content-Type": "application/json" },
-            });
-            setShowEditModal(false);
-            fetchGrades();
-            toast.success("Grade updated successfully! ");
-        } catch (error) {
-            console.error("Error updating grade:", error);
-            toast.error("Failed to update grade ");
-        }
-    };
-
-    const handleDeleteGrade = async (id) => {
-        try {
-            await axios.delete(`https://localhost:7025/api/Grades/delete/${id}`);
-            fetchGrades();
-            toast.success("Grade deleted successfully! ");
-        } catch (error) {
-            console.error("Error deleting grade:", error);
-            toast.error("Failed to delete grade ");
-        }
-    };
-
-    const openEditModal = (grade) => {
-        setEditGrade({ id: grade.id, studentId: grade.studentId, course: grade.course, score: grade.score });
-        setShowEditModal(true);
     };
 
     return (
@@ -88,13 +81,14 @@ const GradeOperations = () => {
             <Button variant="primary" className="mb-3" onClick={() => setShowAddModal(true)}>
                 Add New Grade
             </Button>
-            <Table striped bordered hover responsive>
+            <Table striped bordered hover responsive className="text-center">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Student Name</th>
-                        <th>Course</th>
-                        <th>Score</th>
+                        <th>Student Id</th>
+                        <th>Course Id</th>
+                        <th>Midterm</th>
+                        <th>Final</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -102,14 +96,15 @@ const GradeOperations = () => {
                     {grades.map((grade) => (
                         <tr key={grade.id}>
                             <td>{grade.id}</td>
-                            <td>{grade.studentName}</td>
-                            <td>{grade.course}</td>
-                            <td>{grade.score}</td>
+                            <td>{grade.studentId}</td>
+                            <td>{grade.courseId}</td>
+                            <td>{grade.midterm}</td>
+                            <td>{grade.final}</td>
                             <td>
-                                <Button variant="warning" size="sm" onClick={() => openEditModal(grade)} className="me-2">
+                                <Button variant="warning" size="sm" className="me-2">
                                     Edit
                                 </Button>
-                                <Button variant="danger" size="sm" onClick={() => handleDeleteGrade(grade.id)}>
+                                <Button variant="danger" size="sm">
                                     Delete
                                 </Button>
                             </td>
@@ -127,7 +122,10 @@ const GradeOperations = () => {
                     <Form>
                         <Form.Group>
                             <Form.Label>Student</Form.Label>
-                            <Form.Select value={newGrade.studentId} onChange={(e) => setNewGrade({ ...newGrade, studentId: e.target.value })}>
+                            <Form.Select
+                                value={newGrade.studentId}
+                                onChange={(e) => setNewGrade({ ...newGrade, studentId: e.target.value })}
+                            >
                                 <option value="" disabled>Select a student</option>
                                 {students.map((student) => (
                                     <option key={student.id} value={student.id}>
@@ -136,42 +134,48 @@ const GradeOperations = () => {
                                 ))}
                             </Form.Select>
                         </Form.Group>
-                        <Form.Group className="mt-3">
-                            <Form.Label>Course</Form.Label>
-                            <Form.Control type="text" value={newGrade.course} onChange={(e) => setNewGrade({ ...newGrade, course: e.target.value })} />
-                        </Form.Group>
-                        <Form.Group className="mt-3">
-                            <Form.Label>Score</Form.Label>
-                            <Form.Control type="number" value={newGrade.score} onChange={(e) => setNewGrade({ ...newGrade, score: e.target.value })} />
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowAddModal(false)}>Close</Button>
-                    <Button variant="primary" onClick={handleAddGrade}>Add Grade</Button>
-                </Modal.Footer>
-            </Modal>
 
-            {/* Edit Grade Modal */}
-            <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Edit Grade</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group>
-                            <Form.Label>Course</Form.Label>
-                            <Form.Control type="text" value={editGrade.course} onChange={(e) => setEditGrade({ ...editGrade, course: e.target.value })} />
-                        </Form.Group>
                         <Form.Group className="mt-3">
-                            <Form.Label>Score</Form.Label>
-                            <Form.Control type="number" value={editGrade.score} onChange={(e) => setEditGrade({ ...editGrade, score: e.target.value })} />
+                            <Form.Label>Course</Form.Label>
+                            <Form.Select
+                                value={newGrade.courseId}
+                                onChange={(e) => setNewGrade({ ...newGrade, courseId: e.target.value })}
+                            >
+                                <option value="" disabled>Select a course</option>
+                                {courses.map((course) => (
+                                    <option key={course.id} value={course.id}>
+                                        {course.name}
+                                    </option>
+                                ))}
+                            </Form.Select>
+                        </Form.Group>
+
+                        <Form.Group className="mt-3">
+                            <Form.Label>Midterm</Form.Label>
+                            <Form.Control
+                                type="number"
+                                value={newGrade.midterm}
+                                onChange={(e) => setNewGrade({ ...newGrade, midterm: e.target.value })}
+                            />
+                        </Form.Group>
+
+                        <Form.Group className="mt-3">
+                            <Form.Label>Final</Form.Label>
+                            <Form.Control
+                                type="number"
+                                value={newGrade.final}
+                                onChange={(e) => setNewGrade({ ...newGrade, final: e.target.value })}
+                            />
                         </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowEditModal(false)}>Close</Button>
-                    <Button variant="primary" onClick={handleEditGrade}>Update Grade</Button>
+                    <Button variant="secondary" onClick={() => setShowAddModal(false)}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={handleAddGrade}>
+                        Add Grade
+                    </Button>
                 </Modal.Footer>
             </Modal>
         </Container>
