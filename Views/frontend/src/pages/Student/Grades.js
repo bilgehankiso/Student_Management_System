@@ -39,19 +39,23 @@ const Grades = () => {
                         <th>Course ID</th>
                         <th>Midterm</th>
                         <th>Final</th>
-                        <th>Average</th>  
+                        <th>Average</th>
                     </tr>
                 </thead>
                 <tbody>
                     {grades.length > 0 ? (
-                        grades.map((grade) => (
-                            <tr key={grade.id}>
-                                <td>{grade.courseId}</td>
-                                <td>{grade.midterm}</td>
-                                <td>{grade.final}</td>
-                                <td>{((grade.midterm + grade.final) / 2).toFixed(2)}</td> 
-                            </tr>
-                        ))
+                        grades.map((grade) => {
+                            const average = (grade.midterm + grade.final) / 2;
+                            const averageClass = average >= 50 ? 'text-success' : 'text-danger';
+                            return (
+                                <tr key={grade.id}>
+                                    <td>{grade.courseId}</td>
+                                    <td>{grade.midterm}</td>
+                                    <td>{grade.final}</td>
+                                    <td className={averageClass}>{average.toFixed(2)}</td>
+                                </tr>
+                            );
+                        })
                     ) : (
                         <tr>
                             <td colSpan="4">No grades available</td>
