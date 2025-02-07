@@ -71,7 +71,9 @@ const Course = () => {
             setShowAddModal(false);
             setNewCourse({ name: "", teacherId: "" });
             fetchCourses();
+            toast.success("Course Successfully added!");
         } catch (error) {
+            toast.error("Course Could not Added. Please check datas and try again!");
             console.error("Error adding course:", error);
         }
     };
@@ -90,7 +92,9 @@ const Course = () => {
 
             setShowEditModal(false);
             fetchCourses();
+            toast.success("Course Successfully Edited!");
         } catch (error) {
+            toast.error(error.response.data.message);
             console.error("Error updating course:", error);
         }
     };
@@ -132,7 +136,7 @@ const Course = () => {
             console.log("Successfully added!");
 
             setShowStudentModal(false);
-            setNewStudentId(""); 
+            setNewStudentId("");
 
         } catch (error) {
             console.error("Error adding student:", error);
