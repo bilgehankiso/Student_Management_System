@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Container, Table, Button, Modal, Form } from "react-bootstrap";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 const Course = () => {
+    <ToastContainer />
+
     const [courses, setCourses] = useState([]);
     const [teachers, setTeachers] = useState([]);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -13,10 +18,12 @@ const Course = () => {
     const [courseForStudents, setCourseForStudents] = useState(null);
     const [studentsInCourse, setStudentsInCourse] = useState([]);
     const [allStudents, setAllStudents] = useState([]);
+    const [newStudentId, setNewStudentId] = useState("");
 
     useEffect(() => {
         fetchCourses();
         fetchTeachers();
+        fetchStudents();
     }, []);
 
     const fetchCourses = async () => {
@@ -29,11 +36,24 @@ const Course = () => {
             console.error("Error fetching courses:", error);
         }
     };
+    const [students, setStudents] = useState([]);
+
+    const fetchStudents = async () => {
+        try {
+            const response = await axios.get("https://localhost:7025/api/User/getAllUsersByRole", {
+                params: { role: "Student" },
+                headers: { accept: "*/*" },
+            });
+            setStudents(response.data);
+        } catch (error) {
+            console.error("Error fetching students:", error);
+        }
+    };
 
     const fetchTeachers = async () => {
         try {
             const response = await axios.get("https://localhost:7025/api/User/getAllUsersByRole", {
-                params: { role: "Teacher" }, 
+                params: { role: "Teacher" },
                 headers: { accept: "*/*" },
             });
             setTeachers(response.data);
@@ -41,7 +61,7 @@ const Course = () => {
             console.error("Error fetching teachers:", error);
         }
     };
-    
+
 
     const handleAddCourse = async () => {
         try {
@@ -93,16 +113,30 @@ const Course = () => {
         setShowStudentModal(true);
     };
 
+
     const handleAddStudent = async (studentId) => {
+        if (!studentId || !courseForStudents?.id) {
+            console.error("Invalid student or course ID");
+            return;
+        }
+
         try {
-            await axios.post(`https://localhost:7025/api/Student/addToCourse`, {
-                studentId: studentId,
-                courseId: courseForStudents.id
+            await axios.post("https://localhost:7025/api/Course/join", {
+                studentId: parseInt(studentId, 10),
+                courseId: parseInt(courseForStudents.id, 10)
+            }, {
+                headers: { "Content-Type": "application/json", "accept": "*/*" }
             });
-            const response = await axios.get(`https://localhost:7025/api/Student/course/${courseForStudents.id}`);
-            setStudentsInCourse(response.data);
+
+            toast.success("Successfully added!");
+            console.log("Successfully added!");
+
+            setShowStudentModal(false);
+            setNewStudentId(""); 
+
         } catch (error) {
             console.error("Error adding student:", error);
+            toast.error(error.response.data.message);
         }
     };
 
@@ -146,7 +180,7 @@ const Course = () => {
                                         Edit Course
                                     </Button>
                                     <Button variant="info" size="sm" onClick={() => addDeleteStudent(course)} className="ms-2">
-                                        Add/Delete Student
+                                        Add Student
                                     </Button>
                                 </td>
                             </tr>
@@ -177,7 +211,7 @@ const Course = () => {
                                     value={newCourse.teacherId}
                                     onChange={(e) => setNewCourse({ ...newCourse, teacherId: e.target.value })}
                                 >
-                                    <option value="">Select a teacher</option>
+                                    <option value="" disabled >Select a teacher</option>
                                     {teachers.map((teacher) => (
                                         <option key={teacher.id} value={teacher.id}>
                                             {teacher.name}
@@ -220,7 +254,7 @@ const Course = () => {
                                     value={editCourse.teacherId}
                                     onChange={(e) => setEditCourse({ ...editCourse, teacherId: e.target.value })}
                                 >
-                                    <option value="">Select a teacher</option>
+                                    <option value="" disabled >Select a teacher</option>
                                     {teachers.map((teacher) => (
                                         <option key={teacher.id} value={teacher.id}>
                                             {teacher.name}
@@ -246,41 +280,28 @@ const Course = () => {
                         <Modal.Title>Manage Students for {courseForStudents?.name}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <h5>Students Enrolled</h5>
-                        <ul>
-                            {studentsInCourse.map((student) => (
-                                <li key={student.id}>
-                                    {student.name}
-                                    <Button
-                                        variant="danger"
-                                        size="sm"
-                                        onClick={() => handleRemoveStudent(student.id)}
-                                        className="ms-2"
-                                    >
-                                        Remove
-                                    </Button>
-                                </li>
-                            ))}
-                        </ul>
 
-                        <h5 className="mt-4">Add Students</h5>
-                        <ul>
-                            {allStudents
-                                .filter(student => !studentsInCourse.some(s => s.id === student.id))
-                                .map((student) => (
-                                    <li key={student.id}>
+                        <Form.Group controlId="formStudentSelect">
+                            <Form.Label>Select a Student</Form.Label>
+                            <Form.Select
+                                value={newStudentId}
+                                onChange={(e) => setNewStudentId(e.target.value)}
+                            >
+                                <option value="" disabled > Select a student</option>
+                                {students.map((student) => (
+                                    <option key={student.id} value={student.id}>
                                         {student.name}
-                                        <Button
-                                            variant="success"
-                                            size="sm"
-                                            onClick={() => handleAddStudent(student.id)}
-                                            className="ms-2"
-                                        >
-                                            Add
-                                        </Button>
-                                    </li>
+                                    </option>
                                 ))}
-                        </ul>
+                            </Form.Select>
+                        </Form.Group>
+
+                        <div className="d-flex justify-content-center mt-3">
+                            <Button variant="success" size="md" className="w-25" onClick={() => handleAddStudent(newStudentId)}>
+                                Add
+                            </Button>
+                        </div>
+
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={() => setShowStudentModal(false)}>
