@@ -3,6 +3,8 @@ import { Container, Table, Button, Modal, Form } from "react-bootstrap";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
+
 
 
 const Course = () => {
@@ -25,6 +27,11 @@ const Course = () => {
         fetchTeachers();
         fetchStudents();
     }, []);
+    const navigate = useNavigate();
+
+    const handleRegisterRedirect = () => {
+        navigate("/register");
+    };
 
     const fetchCourses = async () => {
         try {
@@ -160,10 +167,17 @@ const Course = () => {
     return (
         <Container className="mt-5 d-flex justify-content-center">
             <div className="w-75">
-                <h2 className="text-center mb-4">Course List</h2>
-                <Button variant="primary" className="mb-3" onClick={() => setShowAddModal(true)}>
-                    Add New Course
-                </Button>
+                <h2 className="text-center mt-4 mb-4">Course List</h2>
+
+                <div className="d-flex mb-3">
+                    <Button variant="primary" onClick={() => setShowAddModal(true)}>
+                        Add New Course
+                    </Button>
+                    <Button variant="primary" onClick={handleRegisterRedirect} className="ms-2">
+                        Register New User
+                    </Button>
+                </div>
+
                 <Table striped bordered hover responsive className="text-center">
                     <thead>
                         <tr>
