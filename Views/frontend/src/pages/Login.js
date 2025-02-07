@@ -35,7 +35,9 @@ const Login = () => {
                     const userData = response.data.user;
                     if (userData.role === "Teacher") {
                         navigate("/teacher/GradeOperations", { state: { user: userData } });
-                    } else {
+                    } else if (userData.role === "Student") {
+                        navigate("/student/Grades", { state: { user: userData } });
+                    }  else {
                         navigate("/dashboard", { state: { user: userData } });
                     }
                 }, 1000);

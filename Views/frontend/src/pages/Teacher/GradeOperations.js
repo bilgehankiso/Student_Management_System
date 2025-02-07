@@ -104,9 +104,6 @@ const GradeOperations = () => {
                                 <Button variant="warning" size="sm" className="me-2">
                                     Edit
                                 </Button>
-                                <Button variant="danger" size="sm">
-                                    Delete
-                                </Button>
                             </td>
                         </tr>
                     ))}

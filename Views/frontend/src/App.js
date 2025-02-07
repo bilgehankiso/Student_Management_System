@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Register from './pages/Admin/Register'; 
 import Course from './pages/Admin/Course'; 
+import Grades from './pages/Student/Grades'; 
 import GradeOperations from './pages/Teacher/GradeOperations';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -19,6 +20,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/register" element={<Register />} />
         <Route path="/admin/Course" element={<Course />} />
+        <Route path="/student/Grades" element={<Grades />} />
       </Routes>
     </Router>
   );
