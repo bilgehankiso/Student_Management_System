@@ -74,7 +74,7 @@ const GradeOperations = () => {
 
     const handleAddGrade = async () => {
         try {
-            await axios.post("https://localhost:7025/api/Grades/add", newGrade, {
+            await axios.post("https://localhost:7025/api/Grade/addOrUpdate", newGrade, {
                 headers: { "Content-Type": "application/json" },
             });
             setShowAddModal(false);
@@ -111,7 +111,6 @@ const GradeOperations = () => {
                         <th>Course Name</th>
                         <th>Midterm</th>
                         <th>Final</th>
-                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -124,11 +123,6 @@ const GradeOperations = () => {
                             <td>{grade.courseName}</td>
                             <td>{grade.midterm}</td>
                             <td>{grade.final}</td>
-                            <td>
-                                <Button variant="warning" size="sm" className="me-2">
-                                    Edit
-                                </Button>
-                            </td>
                         </tr>
                     ))}
                 </tbody>
