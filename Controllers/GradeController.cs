@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using StudentManagementSystem.Models;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using StudentManagementSystem.DTOs;
+
 
 namespace StudentManagementSystem.Controllers
 {
@@ -66,13 +68,13 @@ namespace StudentManagementSystem.Controllers
         }
         // GET api/grade/teacher/{teacherId}
         [HttpGet("teacher/{teacherId}")]
-        public async Task<IActionResult> GetGradesByTeacher(int teacherId)
+        public async Task<ActionResult<List<GradeTeacherDTO>>>  GetGradesByTeacher(int teacherId)
         {
             var grades = await _gradeRepository.GetGradesByTeacherIdAsync(teacherId);
 
             if (grades == null || grades.Count == 0)
             {
-                return NotFound(new { message = "No grades found for this teacher's courses." });
+                return NotFound(new { message = "No grades found for this teacher" });
             }
 
             return Ok(grades);

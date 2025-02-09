@@ -8,7 +8,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 const GradeOperations = () => {
     const [grades, setGrades] = useState([]);
     const [students, setStudents] = useState([]);
-    const [courses, setCourses] = useState([]); 
+    const [courses, setCourses] = useState([]);
     const [newGrade, setNewGrade] = useState({ studentId: "", courseId: "", midterm: "", final: "" });
     const [editGrade, setEditGrade] = useState({ id: "", studentId: "", courseId: "", midterm: "", final: "" });
     const [showAddModal, setShowAddModal] = useState(false);
@@ -24,7 +24,7 @@ const GradeOperations = () => {
         }
         fetchGrades();
         fetchStudents();
-        fetchCourses(); 
+        fetchCourses();
     }, []);
 
     const fetchGrades = async () => {
@@ -52,7 +52,7 @@ const GradeOperations = () => {
     const fetchCourses = async () => {
         try {
             const response = await axios.get(`https://localhost:7025/api/Course/teacher/${user.id}`);
-            setCourses(response.data); 
+            setCourses(response.data);
         } catch (error) {
             console.error("Error fetching courses:", error);
             toast.error("Failed to fetch courses");
@@ -86,7 +86,9 @@ const GradeOperations = () => {
                     <tr>
                         <th>ID</th>
                         <th>Student Id</th>
+                        <th>Student Name</th>
                         <th>Course Id</th>
+                        <th>Course Name</th>
                         <th>Midterm</th>
                         <th>Final</th>
                         <th>Actions</th>
@@ -97,7 +99,9 @@ const GradeOperations = () => {
                         <tr key={grade.id}>
                             <td>{grade.id}</td>
                             <td>{grade.studentId}</td>
+                            <td>{grade.studentName}</td>
                             <td>{grade.courseId}</td>
+                            <td>{grade.courseName}</td>
                             <td>{grade.midterm}</td>
                             <td>{grade.final}</td>
                             <td>
@@ -117,21 +121,6 @@ const GradeOperations = () => {
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        <Form.Group>
-                            <Form.Label>Student</Form.Label>
-                            <Form.Select
-                                value={newGrade.studentId}
-                                onChange={(e) => setNewGrade({ ...newGrade, studentId: e.target.value })}
-                            >
-                                <option value="" disabled>Select a student</option>
-                                {students.map((student) => (
-                                    <option key={student.id} value={student.id}>
-                                        {student.name}
-                                    </option>
-                                ))}
-                            </Form.Select>
-                        </Form.Group>
-
                         <Form.Group className="mt-3">
                             <Form.Label>Course</Form.Label>
                             <Form.Select
@@ -146,7 +135,20 @@ const GradeOperations = () => {
                                 ))}
                             </Form.Select>
                         </Form.Group>
-
+                        <Form.Group>
+                            <Form.Label>Student</Form.Label>
+                            <Form.Select
+                                value={newGrade.studentId}
+                                onChange={(e) => setNewGrade({ ...newGrade, studentId: e.target.value })}
+                            >
+                                <option value="" disabled>Select a student</option>
+                                {students.map((student) => (
+                                    <option key={student.id} value={student.id}>
+                                        {student.name}
+                                    </option>
+                                ))}
+                            </Form.Select>
+                        </Form.Group>
                         <Form.Group className="mt-3">
                             <Form.Label>Midterm</Form.Label>
                             <Form.Control

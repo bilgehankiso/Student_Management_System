@@ -1,6 +1,9 @@
 using StudentManagementSystem.Data;
 using StudentManagementSystem.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using StudentManagementSystem.DTOs;
+using System.Linq;
 using System.Threading.Tasks;
 
 public class GradeRepository
@@ -37,28 +40,29 @@ public class GradeRepository
         return await _context.Grades
             .FirstOrDefaultAsync(g => g.StudentId == studentId && g.CourseId == courseId);
     }
+
     public async Task<List<Grade>> GetGradesByStudentIdAsync(int studentId)
     {
         return await _context.Grades
             .Where(g => g.StudentId == studentId)
             .ToListAsync();
     }
-    public async Task<List<Grade>> GetGradesByTeacherIdAsync(int teacherId)
+
+    public async Task<List<GradeTeacherDTO>> GetGradesByTeacherIdAsync(int teacherId)
     {
-        var courseIds = await _context.Courses
-            .Where(c => c.TeacherId == teacherId)
-            .Select(c => c.Id)
-            .ToListAsync();
-
-        if (courseIds.Count == 0)
-        {
-            return new List<Grade>();
-        }
-
-        return await _context.Grades
-            .Where(g => courseIds.Contains(g.CourseId))
-            .ToListAsync();
+        return await (from g in _context.Grades
+                      join s in _context.Users on g.StudentId equals s.Id
+                      join c in _context.Courses on g.CourseId equals c.Id
+                      where c.TeacherId == teacherId
+                      select new GradeTeacherDTO
+                      {
+                          Id = g.Id,
+                          StudentId = s.Id,
+                          StudentName = s.Name,
+                          CourseId = c.Id,
+                          CourseName = c.Name,
+                          Midterm = g.Midterm,
+                          Final = g.Final
+                      }).ToListAsync();
     }
-
-
 }

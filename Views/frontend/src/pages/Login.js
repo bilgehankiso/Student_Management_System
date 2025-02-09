@@ -38,7 +38,7 @@ const Login = () => {
                     } else if (userData.role === "Student") {
                         navigate("/student/Grades", { state: { user: userData } });
                     }  else {
-                        navigate("/dashboard", { state: { user: userData } });
+                        navigate("/admin/Course", { state: { user: userData } });
                     }
                 }, 1000);
             } else {
