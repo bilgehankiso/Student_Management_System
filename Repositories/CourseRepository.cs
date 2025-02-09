@@ -6,7 +6,7 @@ using StudentManagementSystem.DTOs;
 
 namespace StudentManagementSystem.Repositories
 {
-    public class CourseRepository: ICourseRepository
+    public class CourseRepository : ICourseRepository
     {
         private readonly ApplicationDbContext _context;
 
@@ -92,7 +92,7 @@ namespace StudentManagementSystem.Repositories
                           Id = course.Id,
                           Name = course.Name,
                           TeacherId = course.TeacherId,
-                          TeacherName = user.Name  // User tablosundan öğretmen ismi alınıyor
+                          TeacherName = user.Name
                       })
                 .ToListAsync();
 

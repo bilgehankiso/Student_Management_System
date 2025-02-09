@@ -3,8 +3,7 @@ using StudentManagementSystem.Models;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using StudentManagementSystem.DTOs;
-using StudentManagementSystem.Repositories;
-
+using StudentManagementSystem.Services;
 
 
 namespace StudentManagementSystem.Controllers
@@ -13,11 +12,11 @@ namespace StudentManagementSystem.Controllers
     [ApiController]
     public class CourseController : ControllerBase
     {
-        private readonly ICourseRepository _courseRepository;
+        private readonly ICourseService _courseService;
 
-        public CourseController(ICourseRepository courseRepository)
+        public CourseController(ICourseService courseService)
         {
-            _courseRepository = courseRepository;
+            _courseService = courseService;
         }
 
         // POST api/course/addorupdate
@@ -27,42 +26,41 @@ namespace StudentManagementSystem.Controllers
         {
             if (course == null)
             {
-                return BadRequest("Invalid course data.");
+                return BadRequest("Invalid course data");
             }
 
-            if (course.Id > 0) // ID varsa, Güncelleme işlemi yap
+            if (course.Id > 0)
             {
-                var existingCourse = await _courseRepository.GetCourseByIdAsync(course.Id);
+                var existingCourse = await _courseService.GetCourseByIdAsync(course.Id);
                 if (existingCourse == null)
                 {
-                    return NotFound("Course not found.");
+                    return NotFound("Course not found");
                 }
 
                 existingCourse.Name = course.Name;
                 existingCourse.TeacherId = course.TeacherId;
 
-                await _courseRepository.UpdateCourseAsync(existingCourse);
-                return Ok("Course updated successfully.");
+                await _courseService.UpdateCourseAsync(existingCourse);
+                return Ok("Course updated successfully");
             }
-            else // ID yoksa, Yeni ekleme işlemi yap
+            else
             {
-                await _courseRepository.AddCourseAsync(course);
-                return Ok("Course added successfully.");
+                await _courseService.AddCourseAsync(course);
+                return Ok("Course added successfully");
             }
         }
-
 
         [HttpDelete("delete/{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> DeleteCourse(int id)
         {
-            var course = await _courseRepository.GetCourseByIdAsync(id);
+            var course = await _courseService.GetCourseByIdAsync(id);
             if (course == null)
             {
                 return NotFound(new { message = "Course not found" });
             }
 
-            await _courseRepository.DeleteCourseAsync(id);
+            await _courseService.DeleteCourseAsync(id);
             return Ok(new { message = "Course deleted successfully" });
         }
 
@@ -75,14 +73,14 @@ namespace StudentManagementSystem.Controllers
                 return BadRequest(new { message = "Invalid student or course data" });
             }
 
-            var success = await _courseRepository.JoinCourseAsync(studentCourse.StudentId, studentCourse.CourseId);
+            var success = await _courseService.JoinCourseAsync(studentCourse.StudentId, studentCourse.CourseId);
 
             if (!success)
             {
-                return BadRequest(new { message = "Failed to join course. The course may not exist or the student may already be enrolled." });
+                return BadRequest(new { message = "Failed to join course. The course may not exist or the student may already be enrolled" });
             }
 
-            return Ok(new { message = "Student successfully joined the course." });
+            return Ok(new { message = "Student successfully joined the course" });
         }
 
         [HttpPost("leave")]
@@ -94,24 +92,24 @@ namespace StudentManagementSystem.Controllers
                 return BadRequest(new { message = "Invalid student or course data" });
             }
 
-            var success = await _courseRepository.LeaveCourseAsync(studentCourse.StudentId, studentCourse.CourseId);
+            var success = await _courseService.LeaveCourseAsync(studentCourse.StudentId, studentCourse.CourseId);
 
             if (!success)
             {
-                return BadRequest(new { message = "Failed to leave course. The student may not be enrolled in this course." });
+                return BadRequest(new { message = "Failed to leave course. The student may not be enrolled in this course" });
             }
 
-            return Ok(new { message = "Student successfully left the course." });
+            return Ok(new { message = "Student successfully left the course" });
         }
 
         [HttpGet("teacher/{teacherId}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetCoursesByTeacher(int teacherId)
         {
-            var courses = await _courseRepository.GetCoursesByTeacherAsync(teacherId);
+            var courses = await _courseService.GetCoursesByTeacherAsync(teacherId);
             if (courses == null || !courses.Any())
             {
-                return NotFound(new { message = "No courses found for this teacher." });
+                return NotFound(new { message = "No courses found for this teacher" });
             }
 
             return Ok(courses);
@@ -121,26 +119,26 @@ namespace StudentManagementSystem.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetAllCourses()
         {
-            var coursesWithTeachers = await _courseRepository.GetAllCoursesWithTeacherAsync();
+            var coursesWithTeachers = await _courseService.GetAllCoursesWithTeacherAsync();
             if (coursesWithTeachers == null || !coursesWithTeachers.Any())
             {
-                return NotFound(new { message = "No courses found." });
+                return NotFound(new { message = "No courses found" });
             }
 
             return Ok(coursesWithTeachers);
         }
+
         [HttpGet("{courseId}/students")]
         [AllowAnonymous]
         public async Task<IActionResult> GetStudentsByCourseId(int courseId)
         {
-            var students = await _courseRepository.GetStudentsByCourseIdAsync(courseId);
+            var students = await _courseService.GetStudentsByCourseIdAsync(courseId);
             if (students == null || students.Count == 0)
             {
-                return NotFound(new { message = "No students found for this course." });
+                return NotFound(new { message = "No students found for this course" });
             }
 
             return Ok(students);
         }
-
     }
 }
