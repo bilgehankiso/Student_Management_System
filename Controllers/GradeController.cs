@@ -3,6 +3,7 @@ using StudentManagementSystem.Models;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using StudentManagementSystem.DTOs;
+using StudentManagementSystem.Repositories;
 
 
 namespace StudentManagementSystem.Controllers
@@ -11,9 +12,9 @@ namespace StudentManagementSystem.Controllers
     [ApiController]
     public class GradeController : ControllerBase
     {
-        private readonly GradeRepository _gradeRepository;
+        private readonly IGradeRepository _gradeRepository;
 
-        public GradeController(GradeRepository gradeRepository)
+        public GradeController(IGradeRepository gradeRepository)
         {
             _gradeRepository = gradeRepository;
         }

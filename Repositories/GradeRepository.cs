@@ -6,63 +6,66 @@ using StudentManagementSystem.DTOs;
 using System.Linq;
 using System.Threading.Tasks;
 
-public class GradeRepository
+namespace StudentManagementSystem.Repositories
 {
-    private readonly ApplicationDbContext _context;
-
-    public GradeRepository(ApplicationDbContext context)
+    public class GradeRepository: IGradeRepository
     {
-        _context = context;
-    }
+        private readonly ApplicationDbContext _context;
 
-    public async Task<bool> AddOrUpdateGradeAsync(Grade grade)
-    {
-        var existingGrade = await _context.Grades
-            .FirstOrDefaultAsync(g => g.StudentId == grade.StudentId && g.CourseId == grade.CourseId);
-
-        if (existingGrade == null)
+        public GradeRepository(ApplicationDbContext context)
         {
-            await _context.Grades.AddAsync(grade);
-        }
-        else
-        {
-            existingGrade.Midterm = grade.Midterm;
-            existingGrade.Final = grade.Final;
-            _context.Grades.Update(existingGrade);
+            _context = context;
         }
 
-        await _context.SaveChangesAsync();
-        return true;
-    }
+        public async Task<bool> AddOrUpdateGradeAsync(Grade grade)
+        {
+            var existingGrade = await _context.Grades
+                .FirstOrDefaultAsync(g => g.StudentId == grade.StudentId && g.CourseId == grade.CourseId);
 
-    public async Task<Grade?> GetGradeAsync(int studentId, int courseId)
-    {
-        return await _context.Grades
-            .FirstOrDefaultAsync(g => g.StudentId == studentId && g.CourseId == courseId);
-    }
+            if (existingGrade == null)
+            {
+                await _context.Grades.AddAsync(grade);
+            }
+            else
+            {
+                existingGrade.Midterm = grade.Midterm;
+                existingGrade.Final = grade.Final;
+                _context.Grades.Update(existingGrade);
+            }
 
-    public async Task<List<Grade>> GetGradesByStudentIdAsync(int studentId)
-    {
-        return await _context.Grades
-            .Where(g => g.StudentId == studentId)
-            .ToListAsync();
-    }
+            await _context.SaveChangesAsync();
+            return true;
+        }
 
-    public async Task<List<GradeTeacherDTO>> GetGradesByTeacherIdAsync(int teacherId)
-    {
-        return await (from g in _context.Grades
-                      join s in _context.Users on g.StudentId equals s.Id
-                      join c in _context.Courses on g.CourseId equals c.Id
-                      where c.TeacherId == teacherId
-                      select new GradeTeacherDTO
-                      {
-                          Id = g.Id,
-                          StudentId = s.Id,
-                          StudentName = s.Name,
-                          CourseId = c.Id,
-                          CourseName = c.Name,
-                          Midterm = g.Midterm,
-                          Final = g.Final
-                      }).ToListAsync();
+        public async Task<Grade?> GetGradeAsync(int studentId, int courseId)
+        {
+            return await _context.Grades
+                .FirstOrDefaultAsync(g => g.StudentId == studentId && g.CourseId == courseId);
+        }
+
+        public async Task<List<Grade>> GetGradesByStudentIdAsync(int studentId)
+        {
+            return await _context.Grades
+                .Where(g => g.StudentId == studentId)
+                .ToListAsync();
+        }
+
+        public async Task<List<GradeTeacherDTO>> GetGradesByTeacherIdAsync(int teacherId)
+        {
+            return await (from g in _context.Grades
+                          join s in _context.Users on g.StudentId equals s.Id
+                          join c in _context.Courses on g.CourseId equals c.Id
+                          where c.TeacherId == teacherId
+                          select new GradeTeacherDTO
+                          {
+                              Id = g.Id,
+                              StudentId = s.Id,
+                              StudentName = s.Name,
+                              CourseId = c.Id,
+                              CourseName = c.Name,
+                              Midterm = g.Midterm,
+                              Final = g.Final
+                          }).ToListAsync();
+        }
     }
 }
