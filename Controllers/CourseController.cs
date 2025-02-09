@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using StudentManagementSystem.Models;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using StudentManagementSystem.DTOs;
 
 
 namespace StudentManagementSystem.Controllers
@@ -125,6 +126,18 @@ namespace StudentManagementSystem.Controllers
             }
 
             return Ok(coursesWithTeachers);
+        }
+        [HttpGet("{courseId}/students")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetStudentsByCourseId(int courseId)
+        {
+            var students = await _courseRepository.GetStudentsByCourseIdAsync(courseId);
+            if (students == null || students.Count == 0)
+            {
+                return NotFound(new { message = "No students found for this course." });
+            }
+
+            return Ok(students);
         }
 
     }

@@ -13,6 +13,7 @@ const GradeOperations = () => {
     const [editGrade, setEditGrade] = useState({ id: "", studentId: "", courseId: "", midterm: "", final: "" });
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedCourseId, setSelectedCourseId] = useState("");
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -37,17 +38,29 @@ const GradeOperations = () => {
         }
     };
 
-    const fetchStudents = async () => {
+    const fetchStudents = async (courseId) => {
         try {
-            const response = await axios.get("https://localhost:7025/api/User/getAllUsersByRole", {
-                params: { role: "Student" },
+            if (!courseId) {
+                setStudents([]);
+                return;
+            }
+
+            const response = await axios.get(`https://localhost:7025/api/Course/${courseId}/students`, {
                 headers: { accept: "*/*" },
             });
-            setStudents(response.data);
+
+            if (response.data.length === 0) {
+                setStudents([]);
+            } else {
+                setStudents(response.data);
+            }
         } catch (error) {
             console.error("Error fetching students:", error);
+            toast.error("Failed to fetch students");
+            setStudents([]);
         }
     };
+
 
     const fetchCourses = async () => {
         try {
@@ -72,6 +85,13 @@ const GradeOperations = () => {
             console.error("Error adding grade:", error);
             toast.error("Failed to add grade");
         }
+    };
+
+    const handleCourseChange = (e) => {
+        const courseId = e.target.value;
+        setSelectedCourseId(courseId);
+        setNewGrade({ ...newGrade, courseId });
+        fetchStudents(courseId);
     };
 
     return (
@@ -125,7 +145,7 @@ const GradeOperations = () => {
                             <Form.Label>Course</Form.Label>
                             <Form.Select
                                 value={newGrade.courseId}
-                                onChange={(e) => setNewGrade({ ...newGrade, courseId: e.target.value })}
+                                onChange={(e) => handleCourseChange(e)}
                             >
                                 <option value="" disabled>Select a course</option>
                                 {courses.map((course) => (
@@ -135,6 +155,7 @@ const GradeOperations = () => {
                                 ))}
                             </Form.Select>
                         </Form.Group>
+
                         <Form.Group>
                             <Form.Label>Student</Form.Label>
                             <Form.Select
@@ -153,8 +174,13 @@ const GradeOperations = () => {
                             <Form.Label>Midterm</Form.Label>
                             <Form.Control
                                 type="number"
+                                min="0"
+                                max="100"
                                 value={newGrade.midterm}
-                                onChange={(e) => setNewGrade({ ...newGrade, midterm: e.target.value })}
+                                onChange={(e) => {
+                                    const value = Math.max(0, Math.min(100, Number(e.target.value)));
+                                    setNewGrade({ ...newGrade, midterm: value });
+                                }}
                             />
                         </Form.Group>
 
@@ -162,8 +188,13 @@ const GradeOperations = () => {
                             <Form.Label>Final</Form.Label>
                             <Form.Control
                                 type="number"
+                                min="0"
+                                max="100"
                                 value={newGrade.final}
-                                onChange={(e) => setNewGrade({ ...newGrade, final: e.target.value })}
+                                onChange={(e) => {
+                                    const value = Math.max(0, Math.min(100, Number(e.target.value)));
+                                    setNewGrade({ ...newGrade, final: value });
+                                }}
                             />
                         </Form.Group>
                     </Form>

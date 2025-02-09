@@ -1,7 +1,8 @@
-using StudentManagementSystem.Models;  // For Course
-using Microsoft.EntityFrameworkCore;  // For ApplicationDbContext
+using StudentManagementSystem.Models;  
+using Microsoft.EntityFrameworkCore;  
 using System.Threading.Tasks;
-using StudentManagementSystem.Data;  // For ApplicationDbContext
+using StudentManagementSystem.Data;  
+using StudentManagementSystem.DTOs;
 
 public class CourseRepository
 {
@@ -107,5 +108,18 @@ public class CourseRepository
             await _context.SaveChangesAsync();
         }
     }
+    public async Task<List<StudentDTO>> GetStudentsByCourseIdAsync(int courseId)
+    {
+        return await (from sc in _context.StudentCourses
+                      join u in _context.Users on sc.StudentId equals u.Id
+                      where sc.CourseId == courseId
+                      select new StudentDTO
+                      {
+                          Id = u.Id,
+                          Name = u.Name,
+                          CourseId = sc.CourseId  
+                      }).ToListAsync();
+    }
+
 
 }
