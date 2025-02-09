@@ -19,7 +19,7 @@ namespace StudentManagementSystem.Repositories
         {
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            return ServiceResult<User>.SuccessResult(user, "Kullanıcı başarıyla kaydedildi.");
+            return ServiceResult<User>.SuccessResult(user, "User registered successfully");
         }
 
         public async Task<User?> GetUserByEmailAsync(string email)

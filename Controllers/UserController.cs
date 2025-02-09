@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using StudentManagementSystem.Models;
-using StudentManagementSystem.Repositories;
 using StudentManagementSystem.DTOs;
+using StudentManagementSystem.Services;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace StudentManagementSystem.Controllers
 {
@@ -10,11 +11,11 @@ namespace StudentManagementSystem.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IUserService _userService;
 
-        public UserController(IUserRepository userRepository)
+        public UserController(IUserService userService)
         {
-            _userRepository = userRepository;
+            _userService = userService;
         }
 
         [HttpPost("register")]
@@ -25,13 +26,13 @@ namespace StudentManagementSystem.Controllers
                 return BadRequest(ModelState);
             }
 
-            var existingUser = await _userRepository.GetUserByEmailAsync(user.Email);
+            var existingUser = await _userService.GetUserByEmailAsync(user.Email);
             if (existingUser != null)
             {
-                return Conflict("Bu email adresi zaten kayıtlı.");
+                return Conflict("This email address is already registered");
             }
 
-            var result = await _userRepository.RegisterUserAsync(user);
+            var result = await _userService.RegisterUserAsync(user);
             return Ok(result);
         }
 
@@ -43,7 +44,7 @@ namespace StudentManagementSystem.Controllers
                 return BadRequest(new { message = "Invalid login data" });
             }
 
-            var user = await _userRepository.GetUserByEmailAsync(loginDto.Email);
+            var user = await _userService.GetUserByEmailAsync(loginDto.Email);
             if (user == null)
             {
                 return Unauthorized(new { message = "User not found" });
@@ -71,20 +72,20 @@ namespace StudentManagementSystem.Controllers
         [HttpGet("getAllUsersByRole")]
         public async Task<IActionResult> GetAllUsersByRole(string role)
         {
-            var teachers = await _userRepository.GetUsersByRoleAsync(role);
+            var users = await _userService.GetUsersByRoleAsync(role);
 
-            if (teachers == null || !teachers.Any())
+            if (users == null || !users.Any())
             {
-                return NotFound("No" + role + "found.");
+                return NotFound("No " + role + " found.");
             }
 
-            var teacherList = teachers.Select(t => new RoleDto
+            var userList = users.Select(t => new RoleDto
             {
                 Id = t.Id,
                 Name = t.Name,
                 Role = t.Role
             });
-            return Ok(teacherList);
+            return Ok(userList);
         }
     }
 }
