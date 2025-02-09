@@ -3,6 +3,8 @@ using StudentManagementSystem.Models;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using StudentManagementSystem.DTOs;
+using StudentManagementSystem.Repositories;
+
 
 
 namespace StudentManagementSystem.Controllers
@@ -11,9 +13,9 @@ namespace StudentManagementSystem.Controllers
     [ApiController]
     public class CourseController : ControllerBase
     {
-        private readonly CourseRepository _courseRepository;
+        private readonly ICourseRepository _courseRepository;
 
-        public CourseController(CourseRepository courseRepository)
+        public CourseController(ICourseRepository courseRepository)
         {
             _courseRepository = courseRepository;
         }

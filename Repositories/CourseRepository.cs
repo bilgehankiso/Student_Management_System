@@ -1,125 +1,128 @@
-using StudentManagementSystem.Models;  
-using Microsoft.EntityFrameworkCore;  
+using StudentManagementSystem.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
-using StudentManagementSystem.Data;  
+using StudentManagementSystem.Data;
 using StudentManagementSystem.DTOs;
 
-public class CourseRepository
+namespace StudentManagementSystem.Repositories
 {
-    private readonly ApplicationDbContext _context;
+    public class CourseRepository: ICourseRepository
+    {
+        private readonly ApplicationDbContext _context;
 
-    public CourseRepository(ApplicationDbContext context)
-    {
-        _context = context;
-    }
-
-    public async Task AddCourseAsync(Course course)
-    {
-        await _context.Courses.AddAsync(course);
-        await _context.SaveChangesAsync();
-    }
-    public async Task DeleteCourseAsync(int id)
-    {
-        var course = await _context.Courses.FindAsync(id);
-        if (course != null)
+        public CourseRepository(ApplicationDbContext context)
         {
-            _context.Courses.Remove(course);
+            _context = context;
+        }
+
+        public async Task AddCourseAsync(Course course)
+        {
+            await _context.Courses.AddAsync(course);
             await _context.SaveChangesAsync();
         }
-    }
-    public async Task<Course?> GetCourseByIdAsync(int id)
-    {
-        return await _context.Courses.FirstOrDefaultAsync(c => c.Id == id);
-    }
-    public async Task<bool> JoinCourseAsync(int studentId, int courseId)
-    {
-        var courseExists = await _context.Courses.AnyAsync(c => c.Id == courseId);
-        if (!courseExists)
+        public async Task DeleteCourseAsync(int id)
         {
-            return false;
+            var course = await _context.Courses.FindAsync(id);
+            if (course != null)
+            {
+                _context.Courses.Remove(course);
+                await _context.SaveChangesAsync();
+            }
         }
-
-        var alreadyJoined = await _context.StudentCourses
-            .AnyAsync(sc => sc.StudentId == studentId && sc.CourseId == courseId);
-
-        if (alreadyJoined)
+        public async Task<Course?> GetCourseByIdAsync(int id)
         {
-            return false;
+            return await _context.Courses.FirstOrDefaultAsync(c => c.Id == id);
         }
-
-        var studentCourse = new StudentCourse
+        public async Task<bool> JoinCourseAsync(int studentId, int courseId)
         {
-            StudentId = studentId,
-            CourseId = courseId
-        };
+            var courseExists = await _context.Courses.AnyAsync(c => c.Id == courseId);
+            if (!courseExists)
+            {
+                return false;
+            }
 
-        await _context.StudentCourses.AddAsync(studentCourse);
-        await _context.SaveChangesAsync();
+            var alreadyJoined = await _context.StudentCourses
+                .AnyAsync(sc => sc.StudentId == studentId && sc.CourseId == courseId);
 
-        return true;
-    }
-    public async Task<bool> LeaveCourseAsync(int studentId, int courseId)
-    {
-        var studentCourse = await _context.StudentCourses
-            .FirstOrDefaultAsync(sc => sc.StudentId == studentId && sc.CourseId == courseId);
+            if (alreadyJoined)
+            {
+                return false;
+            }
 
-        if (studentCourse == null)
-        {
-            return false;
-        }
+            var studentCourse = new StudentCourse
+            {
+                StudentId = studentId,
+                CourseId = courseId
+            };
 
-        _context.StudentCourses.Remove(studentCourse);
-        await _context.SaveChangesAsync();
-
-        return true;
-    }
-    public async Task<List<Course>> GetCoursesByTeacherAsync(int teacherId)
-    {
-        return await _context.Courses
-                             .Where(c => c.TeacherId == teacherId)
-                             .ToListAsync();
-    }
-    public async Task<List<CourseWithTeacher>> GetAllCoursesWithTeacherAsync()
-    {
-        var coursesWithTeachers = await _context.Courses
-            .Join(_context.Users,
-                  course => course.TeacherId,
-                  user => user.Id,
-                  (course, user) => new CourseWithTeacher
-                  {
-                      Id = course.Id,
-                      Name = course.Name,
-                      TeacherId = course.TeacherId,
-                      TeacherName = user.Name  // User tablosundan öğretmen ismi alınıyor
-                  })
-            .ToListAsync();
-
-        return coursesWithTeachers;
-    }
-    public async Task UpdateCourseAsync(Course course)
-    {
-        var existingCourse = await _context.Courses.FindAsync(course.Id);
-        if (existingCourse != null)
-        {
-            existingCourse.Name = course.Name;
-            existingCourse.TeacherId = course.TeacherId;
-
-            _context.Courses.Update(existingCourse);
+            await _context.StudentCourses.AddAsync(studentCourse);
             await _context.SaveChangesAsync();
+
+            return true;
         }
-    }
-    public async Task<List<StudentDTO>> GetStudentsByCourseIdAsync(int courseId)
-    {
-        return await (from sc in _context.StudentCourses
-                      join u in _context.Users on sc.StudentId equals u.Id
-                      where sc.CourseId == courseId
-                      select new StudentDTO
+        public async Task<bool> LeaveCourseAsync(int studentId, int courseId)
+        {
+            var studentCourse = await _context.StudentCourses
+                .FirstOrDefaultAsync(sc => sc.StudentId == studentId && sc.CourseId == courseId);
+
+            if (studentCourse == null)
+            {
+                return false;
+            }
+
+            _context.StudentCourses.Remove(studentCourse);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+        public async Task<List<Course>> GetCoursesByTeacherAsync(int teacherId)
+        {
+            return await _context.Courses
+                                 .Where(c => c.TeacherId == teacherId)
+                                 .ToListAsync();
+        }
+        public async Task<List<CourseWithTeacher>> GetAllCoursesWithTeacherAsync()
+        {
+            var coursesWithTeachers = await _context.Courses
+                .Join(_context.Users,
+                      course => course.TeacherId,
+                      user => user.Id,
+                      (course, user) => new CourseWithTeacher
                       {
-                          Id = u.Id,
-                          Name = u.Name,
-                          CourseId = sc.CourseId  
-                      }).ToListAsync();
+                          Id = course.Id,
+                          Name = course.Name,
+                          TeacherId = course.TeacherId,
+                          TeacherName = user.Name  // User tablosundan öğretmen ismi alınıyor
+                      })
+                .ToListAsync();
+
+            return coursesWithTeachers;
+        }
+        public async Task UpdateCourseAsync(Course course)
+        {
+            var existingCourse = await _context.Courses.FindAsync(course.Id);
+            if (existingCourse != null)
+            {
+                existingCourse.Name = course.Name;
+                existingCourse.TeacherId = course.TeacherId;
+
+                _context.Courses.Update(existingCourse);
+                await _context.SaveChangesAsync();
+            }
+        }
+        public async Task<List<StudentDTO>> GetStudentsByCourseIdAsync(int courseId)
+        {
+            return await (from sc in _context.StudentCourses
+                          join u in _context.Users on sc.StudentId equals u.Id
+                          where sc.CourseId == courseId
+                          select new StudentDTO
+                          {
+                              Id = u.Id,
+                              Name = u.Name,
+                              CourseId = sc.CourseId
+                          }).ToListAsync();
+        }
+
+
     }
-
-
 }

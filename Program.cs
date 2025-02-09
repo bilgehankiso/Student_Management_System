@@ -4,7 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StudentManagementSystem.Data;
 using StudentManagementSystem.Repositories;
-using StudentManagementSystem.Services;
+//using StudentManagementSystem.Services;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,8 +23,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<CourseRepository>();
+builder.Services.AddScoped<ICourseRepository,CourseRepository>();
 builder.Services.AddScoped<IGradeRepository,GradeRepository>();
 
 builder.Services.AddCors(options =>
