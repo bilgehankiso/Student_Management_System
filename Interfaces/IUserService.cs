@@ -7,8 +7,9 @@ namespace StudentManagementSystem.Services
 {
     public interface IUserService
     {
-        Task<ServiceResult<User>> RegisterUserAsync(User user);
-        Task<User?> GetUserByEmailAsync(string email);
+        Task<(bool Success, string Message, User? User)> RegisterUserAsync(User user);
         Task<List<User>> GetUsersByRoleAsync(string role);
+        Task<(bool Success, string Message, User? User)> LoginUserAsync(LoginRequest loginDto);
+
     }
 }

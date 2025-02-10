@@ -19,55 +19,57 @@ namespace StudentManagementSystem.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> RegisterUser([FromBody] User user)
+        public async Task<IActionResult> RegisterUser([FromBody] User userRequest)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            var (success, message, registeredUser) = await _userService.RegisterUserAsync(userRequest);
 
-            var existingUser = await _userService.GetUserByEmailAsync(user.Email);
-            if (existingUser != null)
+            if (!success)
             {
-                return Conflict("This email address is already registered");
-            }
-
-            var result = await _userService.RegisterUserAsync(user);
-            return Ok(result);
-        }
-
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest loginDto)
-        {
-            if (loginDto == null || string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password))
-            {
-                return BadRequest(new { message = "Invalid login data" });
-            }
-
-            var user = await _userService.GetUserByEmailAsync(loginDto.Email);
-            if (user == null)
-            {
-                return Unauthorized(new { message = "User not found" });
-            }
-
-            if (user.PasswordHash != loginDto.Password)
-            {
-                return Unauthorized(new { message = "Invalid password" });
+                return BadRequest(new
+                {
+                    message,
+                    success
+                });
             }
 
             return Ok(new
             {
-                message = "Login successful",
-                success = true,
+                message,
+                success,
                 user = new
                 {
-                    user.Id,
-                    user.Name,
-                    user.Email,
-                    user.Role
+                    registeredUser!.Id,
+                    registeredUser.Name,
+                    registeredUser.Email,
+                    registeredUser.Role
                 }
             });
         }
+
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest loginDto)
+        {
+            var (success, message, user) = await _userService.LoginUserAsync(loginDto);
+
+            if (!success)
+            {
+                return Unauthorized(new
+                {
+                    message,
+                    success,
+                    user
+                });
+            }
+
+            return Ok(new
+            {
+                message,
+                success,
+                user
+            });
+        }
+
 
         [HttpGet("getAllUsersByRole")]
         public async Task<IActionResult> GetAllUsersByRole(string role)
