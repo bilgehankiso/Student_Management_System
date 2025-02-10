@@ -22,7 +22,7 @@ namespace StudentManagementSystem.Controllers
         // POST api/course/addorupdate
         [HttpPost("addorupdate")]
         [AllowAnonymous]
-        public async Task<IActionResult> AddOrUpdateCourse([FromBody] Course course)
+        public async Task<IActionResult> AddCourse([FromBody] Course course)
         {
             if (course == null)
             {
