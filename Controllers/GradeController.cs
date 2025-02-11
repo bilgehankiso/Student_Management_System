@@ -19,15 +19,9 @@ namespace StudentManagementSystem.Controllers
             _gradeService = gradeService;
         }
 
-        // POST api/grade/addOrUpdate
         [HttpPost("addOrUpdate")]
         public async Task<IActionResult> AddOrUpdateGrade([FromBody] Grade grade)
         {
-            if (grade == null || grade.StudentId <= 0 || grade.CourseId <= 0)
-            {
-                return BadRequest(new { message = "Invalid grade data" });
-            }
-
             var success = await _gradeService.AddOrUpdateGradeAsync(grade);
 
             if (!success)
@@ -39,7 +33,6 @@ namespace StudentManagementSystem.Controllers
         }
 
 
-        // GET api/grade/get/{studentId}/{courseId}
         [HttpGet("get/{studentId}/{courseId}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetGrade(int studentId, int courseId)
@@ -54,7 +47,6 @@ namespace StudentManagementSystem.Controllers
             return Ok(grade);
         }
 
-        // GET: api/grade/student/{studentId}
         [HttpGet("student/{studentId}")]
         public async Task<IActionResult> GetGradesByStudent(int studentId)
         {
@@ -68,7 +60,6 @@ namespace StudentManagementSystem.Controllers
             return Ok(grades);
         }
 
-        // GET api/grade/teacher/{teacherId}
         [HttpGet("teacher/{teacherId}")]
         public async Task<ActionResult<List<GradeTeacherDTO>>> GetGradesByTeacher(int teacherId)
         {

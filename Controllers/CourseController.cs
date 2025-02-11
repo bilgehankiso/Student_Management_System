@@ -19,15 +19,10 @@ namespace StudentManagementSystem.Controllers
             _courseService = courseService;
         }
 
-        // POST api/course/addorupdate
         [HttpPost("addorupdate")]
         [AllowAnonymous]
         public async Task<IActionResult> AddCourse([FromBody] Course course)
         {
-            if (course == null)
-            {
-                return BadRequest("Invalid course data");
-            }
 
             if (course.Id > 0)
             {

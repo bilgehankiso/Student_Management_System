@@ -206,7 +206,6 @@ const Course = () => {
                     </tbody>
                 </Table>
 
-                {/* Add Course Modal */}
                 <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
                     <Modal.Header closeButton>
                         <Modal.Title>Add New Course</Modal.Title>
@@ -249,7 +248,6 @@ const Course = () => {
                     </Modal.Footer>
                 </Modal>
 
-                {/* Edit Course Modal */}
                 <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
                     <Modal.Header closeButton>
                         <Modal.Title>Edit Course</Modal.Title>
