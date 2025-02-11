@@ -16,7 +16,7 @@ builder.Configuration.AddEnvironmentVariables();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (string.IsNullOrEmpty(connectionString))
 {
-    throw new InvalidOperationException("Veritabanı bağlantı dizesi bulunamadı! Lütfen appsettings.json dosyanızı kontrol edin.");
+    throw new InvalidOperationException("Database connection string not found. Please check your appsettings.json file.");
 }
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -55,7 +55,7 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     dbContext.Database.EnsureCreated();
-    Console.WriteLine("Veritabanı ve tablolar kontrol edildi veya oluşturuldu!");
+    Console.WriteLine("Database and tables checked or created");
 }
 
 if (app.Environment.IsDevelopment())
